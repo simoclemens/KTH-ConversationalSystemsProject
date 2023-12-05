@@ -9,7 +9,7 @@ import os
 os.environ["OPENAI_API_KEY"] = "XXX"
 
 db_path = 'db/test_db'  # sys.argv[1]
-question = "Quali sono le coperture?"  # sys.argv[2]
+question = "Who was the first American president?"  # sys.argv[2]
 with open('prompts/prompt1.txt', 'r') as prompt_file:
     prompt = prompt_file.readlines()
 
@@ -37,8 +37,8 @@ chain = load_qa_chain(llm, chain_type="stuff", memory=memory, prompt=prompt)
 # Load the db from the path
 db = FAISS.load_local(db_path, embeddings)
 
-#docs = db.similarity_search(question, k=10)
-docs = db.max_marginal_relevance_search(question, k=8)
+docs = db.similarity_search(question, k=10)
+# docs = db.max_marginal_relevance_search(question, k=8)
 
 response = chain({"human_input": question,
                   "input_documents": docs,
