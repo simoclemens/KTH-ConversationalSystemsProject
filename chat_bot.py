@@ -10,13 +10,11 @@ os.environ["OPENAI_API_KEY"] = "XXX"
 
 db_path = 'db/test_db'  # sys.argv[1]
 question = "Quali sono le coperture?"  # sys.argv[2]
+with open('prompts/prompt1.txt', 'r') as prompt_file:
+    prompt = prompt_file.readlines()
 
-template = """You are a chatbot having a conversation with a human.
-
-Given the following extracted parts of a long document and a question, create a final answer. When you cannot find 
-information in the context answer "Mi spiace, non ho trovato l'informazione rischiesta". You are allowed to answer 
-only qestions related to insurance policies and yu need to decline any kind of other question aswering "Mi spiace ma 
-non posso rispondere".
+template = """
+{prompt}
 
 {context}
 
@@ -33,7 +31,7 @@ memory = ConversationBufferMemory(memory_key="chat_history", input_key="human_in
 # Define the embedding function
 embeddings = OpenAIEmbeddings()
 # Define LLM model (default is a GPT3 davinci)
-llm = OpenAI(temperature=0, verbose=True)
+llm = OpenAI(temperature=0.5, verbose=True)
 chain = load_qa_chain(llm, chain_type="stuff", memory=memory, prompt=prompt)
 
 # Load the db from the path
@@ -45,7 +43,7 @@ docs = db.max_marginal_relevance_search(question, k=8)
 response = chain({"human_input": question,
                   "input_documents": docs,
                   "question": question,
-                  "language": "Italian",
+                  "language": "English",
                   "existing_answer": ""},
                  return_only_outputs=True)
 
