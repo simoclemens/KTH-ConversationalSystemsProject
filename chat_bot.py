@@ -6,15 +6,16 @@ from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
 import os
 
-os.environ["OPENAI_API_KEY"] = "XXX"
+os.environ["OPENAI_API_KEY"] = "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"
 
 db_path = 'db/test_db'  # sys.argv[1]
-question = "Who was the first American president?"  # sys.argv[2]
+question = "Cuban missile crisis"  # sys.argv[2]
 
 template = """You are a chatbot having a conversation with a human.
 
-Given the following extracted parts of a long document and a question, create a final answer. When you cannot find 
-information in the context answer that you don't know.".
+Given the following extracted parts of a long document and a topic, create a question for the user about the specific topic
+considering what you have from the content
+You cannot have political influence and you should be neutral when asked about subjective opinions.
 
 {context}
 
@@ -31,7 +32,7 @@ memory = ConversationBufferMemory(memory_key="chat_history", input_key="human_in
 # Define the embedding function
 embeddings = OpenAIEmbeddings()
 # Define LLM model (default is a GPT3 davinci)
-llm = OpenAI(temperature=0, verbose=True)
+llm = OpenAI(temperature=0.5, verbose=True)
 chain = load_qa_chain(llm, chain_type="stuff", memory=memory, prompt=prompt)
 
 # Load the db from the path
