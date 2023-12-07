@@ -7,6 +7,7 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.memory import ConversationBufferMemory
 from langchain.vectorstores import FAISS
 from langchain_core.prompts import PromptTemplate
+from langchain.schema import *
 
 os.environ["OPENAI_API_KEY"] = "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"
 
@@ -47,6 +48,8 @@ memory = ConversationBufferMemory(memory_key="chat_history", input_key="human_in
 
 # Define the embedding function
 embeddings = OpenAIEmbeddings()
+
+
 # Define LLM model (default is a GPT3 davinci)
 llm = OpenAI(temperature=0.5, verbose=True)
 
@@ -78,3 +81,37 @@ else:
     if input:
         response = get_answer(input, chain, db)
         st.write(response)
+
+
+
+'''
+#test with other model 
+
+model = ChatOpenAI()
+
+chat_model = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.5)
+
+
+class SchoolBot:
+    def __init__(self):
+        self.reset()
+    
+    def answer(self, question):
+        self.history.append(f"$user: {question}")
+
+        docs = db.similarity_search(question, k=10)
+
+        answer = chat_model.predict(prompt).replace(f"$chatbot:", "").strip()
+
+        self.history.append(f"$chatbot: {answer}")
+
+        return answer
+    
+    def reset(self):
+        self.history = []
+
+start_chat(SchoolBot(), agent_name = "chatbot", user_name="student")
+
+'''
+
+
