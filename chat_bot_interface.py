@@ -83,15 +83,13 @@ else:
         st.write(response)
 
 
-
-'''
 #test with other model 
 
 model = ChatOpenAI()
 
 chat_model = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.5)
 
-
+'''
 class SchoolBot:
     def __init__(self):
         self.reset()
@@ -113,5 +111,7 @@ class SchoolBot:
 start_chat(SchoolBot(), agent_name = "chatbot", user_name="student")
 
 '''
+
+
 
 
