@@ -28,11 +28,12 @@ def get_answer(input, chain, db):
 db_path = 'db/test_db'  # sys.argv[1]
 question = "Cuban missile crisis"  # sys.argv[2]
 
-template = """You are a chatbot having a conversation with a human.
 
-Given the following extracted parts of a long document and a topic, create a question for the user about the specific topic
-considering what you have from the content
-You cannot have political influence and you should be neutral when asked about subjective opinions.
+with open('prompts/prompt1.txt', 'r') as prompt_file:
+    prompt = prompt_file.readlines()
+
+template = """
+{prompt}
 
 {context}
 
