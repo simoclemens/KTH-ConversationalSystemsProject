@@ -10,6 +10,7 @@ from langchain_core.prompts import PromptTemplate
 
 os.environ["OPENAI_API_KEY"] = "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"
 
+
 def get_answer(input, chain, db):
     docs = db.similarity_search(input, k=10)
     # docs = db.max_marginal_relevance_search(question, k=8)
@@ -21,7 +22,6 @@ def get_answer(input, chain, db):
                       "existing_answer": ""},
                      return_only_outputs=True)
     return response['output_text']
-
 
 
 db_path = 'db/test_db'  # sys.argv[1]
@@ -55,7 +55,15 @@ chain = load_qa_chain(llm, chain_type="stuff", memory=memory, prompt=prompt)
 # Load the db from the path
 db = FAISS.load_local(db_path, embeddings)
 
-examiner_mode = st.toggle('Examiner mode')
+col1, col2 = st.columns(2)
+
+with col1:
+    option = st.selectbox(
+        'Select the chapter',
+        ('Chapter 1', 'Chapter 2', 'Chapter 3'))
+
+with col2:
+    examiner_mode = st.toggle('Examiner mode')
 
 if not examiner_mode:
 
