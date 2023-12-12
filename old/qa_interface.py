@@ -9,7 +9,7 @@ from langchain.vectorstores import FAISS
 from langchain_core.prompts import PromptTemplate
 from langchain.schema import *
 
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = "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"
 
 
 def get_answer(input, chain, db):
