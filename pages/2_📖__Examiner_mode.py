@@ -1,4 +1,5 @@
 import os
+import utils
 import streamlit as st
 from langchain.chains.question_answering import load_qa_chain
 from langchain.chat_models import ChatOpenAI
@@ -7,59 +8,108 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.memory import ConversationBufferMemory
 from langchain.vectorstores import FAISS
 from langchain_core.prompts import PromptTemplate
+from langchain.chains import MultiPromptChain
+from streaming import StreamHandler
+from langchain.chains import ConversationChain
+from langchain.chains.llm import LLMChain
+from langchain.chains.router.llm_router import LLMRouterChain, RouterOutputParser
+from langchain.chains.router.multi_prompt_prompt import MULTI_PROMPT_ROUTER_TEMPLATE
+
 
 os.environ["OPENAI_API_KEY"] = "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"
+db_path = "db/test_db"
+
+st.set_page_config(page_title="Examiner mode", page_icon='📖')
+
+class ExaminerChatbot:
+    def __init__(self):
+        self.openai_model = "gpt-3.5-turbo"
+        self.memory = None
+    '''
+    def run(self):
+        st.button("New question", onClick=self.generateQuestionThread)
+    '''
+    def setup(self):
+        self.memory = ConversationBufferMemory(memory_key="chat_history")#return_messages=True)
+
+        # Define the embedding function
+        embeddings = OpenAIEmbeddings()
+
+        # Load the db from the path
+        db = FAISS.load_local(db_path, embeddings)
+        
+        # Define retriever
+        retriever = db.as_retriever(
+            search_type='mmr',
+            search_kwargs={'k': 2, 'fetch_k': 4}
+        )
+
+        with open('prompts/evaluation_prompt.txt', 'r') as prompt_file:
+            eval_template = prompt_file.readlines()
+        eval_prompt = eval_template[0] + ' The student gave this answer: {input}. Is it correct based on the information given in {context}? '
+        
+
+        with open('prompts/question_prompt.txt', 'r') as prompt_file2:
+            question_template = prompt_file2.readlines()
+        question_prompt = question_template[0]+' {context}. Give only one question.'
+
+        eval_prompt = PromptTemplate.from_template(eval_template[0])
+        question_prompt = PromptTemplate.from_template(question_template[0])
+
+        prompt_names = ["question", "evaluate"]
+        
+        # TODO
+        prompt_descriptions = ["The user wants to be asked a question", "The answer should be evaluated against the source"]
+
+        prompt_templates = [question_prompt, eval_prompt]
+        prompt_infos = [{"name": prompt_names[0], 
+                         "description":prompt_descriptions[0],
+                         "prompt": prompt_templates[0]}, 
+                         {"name": prompt_names[1], 
+                         "description":prompt_descriptions[1],
+                         "prompt": prompt_templates[1]}
+                        ] 
+
+        llm = ChatOpenAI(model_name=self.openai_model, temperature = 0.3, streaming=True) # maybe change streaming
+        
+        destination_chains = {}
+        for p_info in prompt_infos:
+            name = p_info["name"]
+            prompt = p_info["prompt"]
+            chain = LLMChain(llm=llm, prompt=prompt)
+            destination_chains[name] = chain
+        default_chain = ConversationChain(llm=llm, output_key="text")
+
+        destinations = [f"{p['name']}: {p['description']}" for p in prompt_infos]
+        destinations_str = "\n".join(destinations)
+        router_template = MULTI_PROMPT_ROUTER_TEMPLATE.format(destinations=destinations_str)
+        router_prompt = PromptTemplate(
+            template=router_template,
+            input_variables=["input"],
+            output_parser=RouterOutputParser(),
+        )
+        router_chain = LLMRouterChain.from_llm(llm, router_prompt)
+
+        big_chain = MultiPromptChain(router_chain=router_chain, destination_chains=destination_chains, default_chain=default_chain, verbose=True)
+        
+        return big_chain
+    
+    @utils.enable_chat_history # remove?
+    def question(self):
+        input = st.chat_input()
+        chain = self.setup()
+
+        if(input):
+            utils.display_msg(input, "user")
+            with st.chat_message("examiner"):
+                st_cb = StreamHandler(st.empty())
+                response = chain.run(input)#, callbacks=[st_cb])
+                st.session_state.messages.append({"role": "assistant", "content": response})
 
 
-def get_answer(input, chain, db):
-    docs = db.similarity_search(input, k=10)
-    # docs = db.max_marginal_relevance_search(question, k=8)
 
-    response = chain({"human_input": input,
-                      "input_documents": docs,
-                      "question": question,
-                      "language": "English",
-                      "existing_answer": ""},
-                     return_only_outputs=True)
-    return response['output_text']
-
-
-db_path = 'db/test_db'  # sys.argv[1]
-question = "Cuban missile crisis"  # sys.argv[2]
-
-template = """You are a chatbot having a conversation with a human.
-
-Given the following extracted parts of a long document and a topic, create a question for the user about the specific topic
-considering what you have from the content
-You cannot have political influence and you should be neutral when asked about subjective opinions.
-
-{context}
-
-{chat_history}
-Human: {human_input}
-Chatbot:"""
-
-prompt = PromptTemplate(
-    input_variables=["chat_history", "human_input", "context"], template=template
-)
-
-memory = ConversationBufferMemory(memory_key="chat_history", input_key="human_input")
-
-# Define the embedding function
-embeddings = OpenAIEmbeddings()
-# Define LLM model (default is a GPT3 davinci)
-llm = OpenAI(temperature=0.5, verbose=True)
-
-chain = load_qa_chain(llm, chain_type="stuff", memory=memory, prompt=prompt)
-
-# Load the db from the path
-db = FAISS.load_local(db_path, embeddings)
-
-st.title('Questions time!📖')
 # Create a text input box for the user
-input = st.text_input('Tell me a topic')
-
-# If the user hits enter
-if input:
-    response = get_answer(input, chain, db)
-    st.write(response)
+#input = st.text_input('Give answer')
+if __name__ == "__main__":
+    obj = ExaminerChatbot()
+    obj.question()
