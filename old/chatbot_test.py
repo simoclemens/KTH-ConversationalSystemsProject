@@ -7,8 +7,9 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.memory import ConversationBufferMemory
 from langchain.vectorstores import FAISS
 from langchain_core.prompts import PromptTemplate
+import openai
 
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = "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"
 
 
 def get_answer(input, chain, db):
@@ -48,7 +49,7 @@ memory = ConversationBufferMemory(memory_key="chat_history", input_key="human_in
 # Define the embedding function
 embeddings = OpenAIEmbeddings()
 # Define LLM model (default is a GPT3 davinci)
-llm = OpenAI(temperature=0.5, verbose=True)
+llm = ChatOpenAI(temperature=0.5, verbose=True)
 
 chain = load_qa_chain(llm, chain_type="stuff", memory=memory, prompt=prompt)
 
@@ -68,14 +69,38 @@ with col2:
 if not examiner_mode:
 
     st.title('Hi, I am your tutor!🙋‍♂️')
-    # Create a text input box for the user
-    input = st.text_input('Ask me anything you want')
 
-    # If the user hits enter
-    if input:
-        response = get_answer(input, chain, db)
-        st.write(response)
-        st.button("Reset", type="primary")
+    client = OpenAI(model="gpt-3.5-turbo")
+
+    st.session_state.messages = []
+
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+    if prompt := st.chat_input("What is up?"):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+
+        with st.chat_message("assistant"):
+            message_placeholder = st.empty()
+            full_response = ""
+            for response in client.chat.completions.create(
+                    model=st.session_state["openai_model"],
+                    messages=[
+                        {"role": m["role"], "content": m["content"]}
+                        for m in st.session_state.messages
+                    ],
+                    stream=True,
+            ):
+                full_response += (response.choices[0].delta.content or "")
+                message_placeholder.markdown(full_response + "▌")
+            message_placeholder.markdown(full_response)
+        st.session_state.messages.append({"role": "assistant", "content": full_response})
+
+
+
 else:
 
     st.title('Questions time!📖')
