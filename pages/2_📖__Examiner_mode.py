@@ -14,6 +14,7 @@ from langchain.chains import ConversationChain
 from langchain.chains.llm import LLMChain
 from langchain.chains.router.llm_router import LLMRouterChain, RouterOutputParser
 from langchain.chains.router.multi_prompt_prompt import MULTI_PROMPT_ROUTER_TEMPLATE
+from langchain.chains import ConversationalRetrievalChain
 
 
 os.environ["OPENAI_API_KEY"] = "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"
@@ -76,7 +77,12 @@ class ExaminerChatbot:
         for p_info in prompt_infos:
             name = p_info["name"]
             prompt = p_info["prompt"]
-            chain = LLMChain(llm=llm, prompt=prompt)
+
+            chain = ConversationalRetrievalChain.from_llm(llm,retriever=retriever,
+            memory=self.memory,
+            verbose=True,
+            combine_docs_chain_kwargs={"prompt": prompt})
+
             destination_chains[name] = chain
         default_chain = ConversationChain(llm=llm, output_key="text")
 
