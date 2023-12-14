@@ -11,7 +11,7 @@ from langchain.schema import *
 
 os.environ["OPENAI_API_KEY"] = "XX"
 
-with open('prompts/prompt2.txt', 'r') as prompt_file:
+with open('prompts/prompt3.txt', 'r') as prompt_file:
     prompt_text = prompt_file.readlines()
 
 def get_answer(input, chain, db):
