@@ -8,7 +8,7 @@ from langchain.memory import ConversationBufferMemory
 from langchain.vectorstores import FAISS
 from langchain_core.prompts import PromptTemplate
 
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = "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"
 
 
 def get_answer(input, chain, db):
@@ -17,7 +17,6 @@ def get_answer(input, chain, db):
 
     response = chain({"human_input": input,
                       "input_documents": docs,
-                      "question": question,
                       "language": "English",
                       "existing_answer": ""},
                      return_only_outputs=True)
@@ -25,9 +24,8 @@ def get_answer(input, chain, db):
 
 
 db_path = 'db/test_db'  # sys.argv[1]
-question = "Cuban missile crisis"  # sys.argv[2]
 
-template = """You are a chatbot having a conversation with a human.
+template_question = """You are a chatbot having a conversation with a human.
 
 Given the following extracted parts of a long document and a topic, create a question for the user about the specific topic
 considering what you have from the content
@@ -39,8 +37,23 @@ You cannot have political influence and you should be neutral when asked about s
 Human: {human_input}
 Chatbot:"""
 
-prompt = PromptTemplate(
-    input_variables=["chat_history", "human_input", "context"], template=template
+template_answer = """You are a chatbot having a conversation with a human.
+
+Given the following extracted parts of a long document and a topic, create a question for the user about the specific topic
+considering what you have from the content
+You cannot have political influence and you should be neutral when asked about subjective opinions.
+
+{context}
+
+Human: {human_input}
+Chatbot:"""
+
+prompt_question = PromptTemplate(
+    input_variables=["chat_history", "human_input", "context"], template=template_question
+)
+
+prompt_answer = PromptTemplate(
+    input_variables=["chat_history", "human_input", "context"], template=template_answer
 )
 
 memory = ConversationBufferMemory(memory_key="chat_history", input_key="human_input")
@@ -50,16 +63,33 @@ embeddings = OpenAIEmbeddings()
 # Define LLM model (default is a GPT3 davinci)
 llm = OpenAI(temperature=0.5, verbose=True)
 
-chain = load_qa_chain(llm, chain_type="stuff", memory=memory, prompt=prompt)
+chain_question = load_qa_chain(llm, chain_type="stuff", memory=memory, prompt=prompt_question)
+
+chain_eval = load_qa_chain(llm, chain_type="stuff", memory=memory, prompt=prompt_answer)
 
 # Load the db from the path
 db = FAISS.load_local(db_path, embeddings)
 
 st.title('Questions time!📖')
+
+option = st.selectbox(
+    'Select the chapter',
+    ('Chapter 1', 'Chapter 2', 'Chapter 3'))
+
 # Create a text input box for the user
-input = st.text_input('Tell me a topic')
+input_topic = st.text_input('Tell me a topic')
+generate_button = st.button("Generate question")
+# If the user hits enter
+if input_topic:
+    response_q = get_answer(input_topic, chain_question, db)
+    st.write(response_q)
+
+# Create a text input box for the user
+input_ans = st.text_input('Give your answer')
 
 # If the user hits enter
-if input:
-    response = get_answer(input, chain, db)
-    st.write(response)
+if input_ans:
+    response_e = get_answer(input_ans, chain_eval, db)
+    st.write(response_e)
+
+

@@ -11,7 +11,7 @@ from langchain.vectorstores.faiss import FAISS
 from langchain_core.prompts import PromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate, \
     ChatPromptTemplate
 
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = "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"
 db_path = "db/test_db"
 
 st.set_page_config(page_title="Tutor mode", page_icon='🙋‍♂️')
