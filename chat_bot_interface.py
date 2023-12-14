@@ -9,8 +9,10 @@ from langchain.vectorstores import FAISS
 from langchain_core.prompts import PromptTemplate
 from langchain.schema import *
 
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = "XX"
 
+with open('prompts/prompt2.txt', 'r') as prompt_file:
+    prompt_text = prompt_file.readlines()
 
 def get_answer(input, chain, db):
     docs = db.similarity_search(input, k=10)
@@ -18,7 +20,7 @@ def get_answer(input, chain, db):
 
     response = chain({"human_input": input,
                       "input_documents": docs,
-                      "question": question,
+                      "prompt_text": prompt_text,
                       "language": "English",
                       "existing_answer": ""},
                      return_only_outputs=True)
@@ -29,11 +31,8 @@ db_path = 'db/test_db'  # sys.argv[1]
 question = "Cuban missile crisis"  # sys.argv[2]
 
 
-with open('prompts/prompt1.txt', 'r') as prompt_file:
-    prompt = prompt_file.readlines()
-
-template = """
-{prompt}
+template ="""
+{prompt_text}
 
 {context}
 
@@ -42,7 +41,7 @@ Human: {human_input}
 Chatbot:"""
 
 prompt = PromptTemplate(
-    input_variables=["chat_history", "human_input", "context"], template=template
+    input_variables=["chat_history", "human_input", "context", "prompt_text"], template=template
 )
 
 memory = ConversationBufferMemory(memory_key="chat_history", input_key="human_input")
@@ -71,7 +70,7 @@ with col2:
 
 if not examiner_mode:
 
-    st.title('Hi, I am your tutor!🙋‍♂️')
+    st.title('Hi, I am your tutor!')
     # Create a text input box for the user
     input = st.text_input('Ask me anything you want')
 
@@ -82,7 +81,7 @@ if not examiner_mode:
         st.button("Reset", type="primary")
 else:
 
-    st.title('Questions time!📖')
+    st.title('Questions time!')
     # Create a text input box for the user
     input = st.text_input('Tell me a topic')
 
