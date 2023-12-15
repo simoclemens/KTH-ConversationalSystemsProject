@@ -7,12 +7,9 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.memory import ConversationBufferMemory
 from langchain.vectorstores import FAISS
 from langchain_core.prompts import PromptTemplate
-from langchain.schema import *
 
-os.environ["OPENAI_API_KEY"] = "XX"
+os.environ["OPENAI_API_KEY"] = "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"
 
-with open('prompts/prompt3.txt', 'r') as prompt_file:
-    prompt_text = prompt_file.readlines()
 
 def get_answer(input, chain, db):
     docs = db.similarity_search(input, k=10)
@@ -20,7 +17,7 @@ def get_answer(input, chain, db):
 
     response = chain({"human_input": input,
                       "input_documents": docs,
-                      "prompt_text": prompt_text,
+                      "question": question,
                       "language": "English",
                       "existing_answer": ""},
                      return_only_outputs=True)
@@ -30,9 +27,11 @@ def get_answer(input, chain, db):
 db_path = 'db/test_db'  # sys.argv[1]
 question = "Cuban missile crisis"  # sys.argv[2]
 
+template = """You are a chatbot having a conversation with a human.
 
-template ="""
-{prompt_text}
+Given the following extracted parts of a long document and a topic, create a question for the user about the specific topic
+considering what you have from the content
+You cannot have political influence and you should be neutral when asked about subjective opinions.
 
 {context}
 
@@ -41,15 +40,13 @@ Human: {human_input}
 Chatbot:"""
 
 prompt = PromptTemplate(
-    input_variables=["chat_history", "human_input", "context", "prompt_text"], template=template
+    input_variables=["chat_history", "human_input", "context"], template=template
 )
 
 memory = ConversationBufferMemory(memory_key="chat_history", input_key="human_input")
 
 # Define the embedding function
 embeddings = OpenAIEmbeddings()
-
-
 # Define LLM model (default is a GPT3 davinci)
 llm = OpenAI(temperature=0.5, verbose=True)
 
@@ -70,7 +67,7 @@ with col2:
 
 if not examiner_mode:
 
-    st.title('Hi, I am your tutor!')
+    st.title('Hi, I am your tutor!🙋‍♂️')
     # Create a text input box for the user
     input = st.text_input('Ask me anything you want')
 
@@ -81,7 +78,7 @@ if not examiner_mode:
         st.button("Reset", type="primary")
 else:
 
-    st.title('Questions time!')
+    st.title('Questions time!📖')
     # Create a text input box for the user
     input = st.text_input('Tell me a topic')
 
@@ -89,37 +86,3 @@ else:
     if input:
         response = get_answer(input, chain, db)
         st.write(response)
-
-
-#test with other model 
-
-model = ChatOpenAI()
-
-chat_model = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.5)
-
-'''
-class SchoolBot:
-    def __init__(self):
-        self.reset()
-    
-    def answer(self, question):
-        self.history.append(f"$user: {question}")
-
-        docs = db.similarity_search(question, k=10)
-
-        answer = chat_model.predict(prompt).replace(f"$chatbot:", "").strip()
-
-        self.history.append(f"$chatbot: {answer}")
-
-        return answer
-    
-    def reset(self):
-        self.history = []
-
-start_chat(SchoolBot(), agent_name = "chatbot", user_name="student")
-
-'''
-
-
-
-
