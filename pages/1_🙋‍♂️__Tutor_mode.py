@@ -16,6 +16,8 @@ db_path = "db/test_db"
 
 st.set_page_config(page_title="Tutor mode", page_icon='🙋‍♂️')
 
+f = open("conv_tutor.txt", "a")
+#f.write("---------New conversation--------\n")
 
 class CustomDataChatbot:
 
@@ -79,10 +81,11 @@ class CustomDataChatbot:
 
         if user_query:
             utils.display_msg(user_query, 'user')
-
+            f.write("User: " + user_query + "\n")
             with st.chat_message("assistant"):
                 st_cb = StreamHandler(st.empty())
                 response = qa_chain.run(user_query, callbacks=[st_cb])
+                f.write("Tutor: " + response + "\n")
                 st.session_state.messages.append({"role": "assistant", "content": response})
 
         st.button('New chat', on_click=self.delete_history)
@@ -90,6 +93,7 @@ class CustomDataChatbot:
     def delete_history(self):
         st.session_state.messages = [{"role": "assistant", "content": "How can I help you?"}]
         self.memory.clear()
+        f.write("---------Reset--------\n")
 
 if __name__ == "__main__":
     obj = CustomDataChatbot()
