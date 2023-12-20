@@ -16,6 +16,8 @@ db_path = "db/test_db"
 
 st.set_page_config(page_title="Tutor mode", page_icon='🙋‍♂️')
 
+f = open("conv_tutor.txt", "a")
+#f.write("---------New conversation--------\n")
 
 class CustomDataChatbot:
 
@@ -42,10 +44,13 @@ class CustomDataChatbot:
         )
 
         general_system_template = r"""
-        Given the following context taken from a study book answer the question posed by the user.
-        If the information is out of the context answer "I am sorry, it seems that I cannot help you here!".
-        Answer only to questions related to the topic of the context.
-        You should have a neutral political opinion.
+            You are a tutor having a conversation with a human.
+            Given the following extracted parts of a long document and an unput from the used, have a conversation on the topic.
+            When asked a question, create an concise answer and a question to contine the conversation.
+            The answer offer explanations, and provide summaries from the context.
+            Make sure that the pupil understand the given answer, by asking a follow up question.
+            You cannot have political influence and you should be neutral when asked about subjective opinions.
+            When you cannot find information in the context answer that you don't know, answer "I'm sorry, that is beyond my knowledge.". You are forbidden to answer questions on topics not included in the context.
         ----
         {context}
         ----
@@ -76,10 +81,11 @@ class CustomDataChatbot:
 
         if user_query:
             utils.display_msg(user_query, 'user')
-
+            f.write("User: " + user_query + "\n")
             with st.chat_message("assistant"):
                 st_cb = StreamHandler(st.empty())
                 response = qa_chain.run(user_query, callbacks=[st_cb])
+                f.write("Tutor: " + response + "\n")
                 st.session_state.messages.append({"role": "assistant", "content": response})
 
         st.button('New chat', on_click=self.delete_history)
@@ -87,6 +93,7 @@ class CustomDataChatbot:
     def delete_history(self):
         st.session_state.messages = [{"role": "assistant", "content": "How can I help you?"}]
         self.memory.clear()
+        f.write("---------Reset--------\n")
 
 if __name__ == "__main__":
     obj = CustomDataChatbot()
