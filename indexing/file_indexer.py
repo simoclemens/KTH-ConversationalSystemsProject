@@ -5,10 +5,10 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import FAISS
 
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = "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"
 
-file_path = 'documents/test.pdf'
-db_path = 'db/test_db'
+file_path = 'documents/chap26.pdf'
+db_path = 'db/ch26_db'
 
 # Define the embedding function
 embeddings = OpenAIEmbeddings()

@@ -34,8 +34,8 @@ def get_answer2(input, chain, db, question):
                      return_only_outputs=True)
     return response['output_text']
 
-
-db_path = 'db/test_db'  # sys.argv[1]
+# CHANGE!!
+db_path = 'db/ALL'  # sys.argv[1]
 
 template_question = """You are a chatbot having a conversation with a human.
 
