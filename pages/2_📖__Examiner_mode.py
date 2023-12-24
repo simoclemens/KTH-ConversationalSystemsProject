@@ -92,9 +92,10 @@ if 'question' not in st.session_state:
     st.session_state['question'] = ""
 
 chapters = [
-    {'label': 'Chapter 1', 'value': 'db/test_db'},
-    {'label': 'Chapter 2', 'value': 'db/test_db'},
-    {'label': 'Chapter 3', 'value': 'db/test_db'},
+    {'label': 'Chapter 23', 'value': 'db/ch23_db'},
+    {'label': 'Chapter 24', 'value': 'db/ch24_db'},
+    {'label': 'Chapter 25', 'value': 'db/ch25_db'},
+    {'label': 'Chapter 26', 'value': 'db/ch26_db'}
 ]
 
 option = st.selectbox(label="Select chapter", options=chapters, format_func=lambda item: item['label'])
