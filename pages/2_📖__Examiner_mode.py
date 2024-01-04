@@ -49,21 +49,20 @@ db_path = 'db/ALL'  # sys.argv[1]
 
 template_question = """You are a teacher who will enhance my knowledge through quizzes.
     You will teach by posing questions on a subject of my choice. 
-    Please create an open ended question for me based on the following document, do not refer to any part of the document in the question itself.
+    Please create an open ended question for me based on the following document, do not refer to any part of the document in the question itself. Please also provide some context from the document before asking the question so that the user understands where the question is coming from.
 
     {0}
 
     Chatbot:"""
 
 template_answer = """
-    You are a teacher who will enhance my knowledge through quizzes.
-    You will facilitate my learning by offering hints, clues, and suggestions for clearer explanations when I struggle to answer fully.
-    Please refrain from providing the correct information if I answer a question incorrectly.
-    Remember, your role is to quiz me and provide clues when necessary, rather than directly giving me answers.
-    The question you gave me was: {question}
-    My answer was {human_input}
+    You are a teacher who will enhance the user's knowledge through quizzes.
+    You will facilitate their learning by offering hints, clues, and suggestions for clearer explanations when the user struggle to answer fully.
+    
+    The question you gave the user was: {question}
+    User answer: {human_input}
 
-    Please evaluate the answer based on the following context: {context}
+    Please evaluate the answer by comparing it to the information in the following document: {context}
     """
 
 prompt_question = PromptTemplate(
