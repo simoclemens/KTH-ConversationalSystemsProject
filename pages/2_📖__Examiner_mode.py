@@ -49,7 +49,8 @@ db_path = 'db/ALL'  # sys.argv[1]
 
 template_question = """You are a teacher who will enhance my knowledge through quizzes.
     You will teach by posing questions on a subject of my choice. 
-    Please create an open ended question for me based on the following document, do not refer to any part of the document in the question itself.
+    Please create an open-ended question for me based on the following document, do not refer to any images or tables present in the document. 
+    Do not mention that your question is based on the document.
 
     {0}
 
