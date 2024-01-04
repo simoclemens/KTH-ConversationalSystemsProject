@@ -44,26 +44,24 @@ def get_eval(input, chain, db_path, question, embeddings):
     return response['output_text']
 
 
-template_question = """You are a chatbot who generates questions for students.
+template_question = """You are a teacher who will enhance my knowledge through quizzes.
+    You will teach by posing questions on a subject of my choice. 
+    Please create an open ended question for me based on the following document, do not refer to any part of the document in the question itself.
 
-Given the following extracted parts of a long document and a topic, create a question considering what you have from the
-content.
-You cannot have political influence and you should be neutral when asked about subjective opinions.
+    {0}
 
-{0}
+    Chatbot:"""
 
-Chatbot:"""
+template_answer = """
+    You are a teacher who will enhance my knowledge through quizzes.
+    You will facilitate my learning by offering hints, clues, and suggestions for clearer explanations when I struggle to answer fully.
+    Please refrain from providing the correct information if I answer a question incorrectly.
+    Remember, your role is to quiz me and provide clues when necessary, rather than directly giving me answers.
+    The question you gave me was: {question}
+    My answer was {human_input}
 
-template_answer = """You are a chatbot evaluating the answer from a human.
-
-Given the following extracted parts of a long document and a topic, is what the human said a correct answer to the question {question},
-considering what you have from the content. If not, give a brief explanation as well as the correct answer.
-You cannot have political influence and you should be neutral when giving your response.
-
-{context}
-
-Human: {human_input}
-Chatbot:"""
+    Please evaluate the answer based on the following context: {context}
+    """
 
 prompt_question = PromptTemplate(
     input_variables=["context"], template=template_question
