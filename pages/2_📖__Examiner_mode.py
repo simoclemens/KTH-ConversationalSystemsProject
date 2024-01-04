@@ -43,6 +43,9 @@ def get_eval(input, chain, db_path, question, embeddings):
 
     return response['output_text']
 
+# CHANGE!!
+db_path = 'db/ALL'  # sys.argv[1]
+
 
 template_question = """You are a teacher who will enhance my knowledge through quizzes.
     You will teach by posing questions on a subject of my choice. 
