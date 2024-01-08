@@ -12,7 +12,7 @@ from langchain_core.prompts import PromptTemplate, SystemMessagePromptTemplate, 
     ChatPromptTemplate
 
 os.environ["OPENAI_API_KEY"] = "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"
-db_path = "db/test_db"
+db_path = "db/ALL"
 
 st.set_page_config(page_title="Tutor mode", page_icon='🙋‍♂️')
 
