@@ -10,8 +10,11 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.memory import ConversationBufferMemory
 from langchain.vectorstores import FAISS
 from langchain_core.prompts import PromptTemplate
+from datetime import datetime
 
 os.environ["OPENAI_API_KEY"] = "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"
+
+save_convo = open("conv_examiner.txt", "a")
 
 
 def get_question(model, db_path, embeddings):
@@ -47,24 +50,25 @@ def get_eval(input, chain, db_path, question, embeddings):
 db_path = 'db/ALL'  # sys.argv[1]
 
 
-template_question = """You are a teacher who will enhance my knowledge through quizzes.
+template_question = """You are a teacher who will enhance my knowledge through quizzing.
     You will teach by posing questions on a subject of my choice. 
-    Please create an open-ended question for me based on the following document, do not refer to any images or tables present in the document. 
-    Do not mention that your question is based on the document.
-    Please also provide some context from the document before asking the question so that the user understands where the question is coming from.
+    Please create an open-ended question based on the following document, do not refer to any images or tables present in the document. 
+    
+    Please also provide some context from the document before asking the question so that the user understands where the question is coming from. Do NOT give the answer to the question in the context. 
+    Never mention the underlying document in neither the question nor the context.
 
     {0}
 
     Chatbot:"""
 
 template_answer = """
-    You are a teacher who will enhance the user's knowledge through quizzes.
+    You are a teacher who will enhance the user's knowledge through quizzing.
     You will facilitate their learning by offering hints, clues, and suggestions for clearer explanations when the user struggle to answer fully.
     
     The question you gave the user was: {question}
     User answer: {human_input}
 
-    Please evaluate the answer by comparing it to the information in the following document: {context}
+    Please evaluate the answer by comparing it to the information in the following book: {context}
     """
 
 prompt_question = PromptTemplate(
@@ -94,10 +98,10 @@ if 'question' not in st.session_state:
     st.session_state['question'] = ""
 
 chapters = [
-    {'label': 'Chapter 23', 'value': 'db/ch23_db'},
-    {'label': 'Chapter 24', 'value': 'db/ch24_db'},
-    {'label': 'Chapter 25', 'value': 'db/ch25_db'},
-    {'label': 'Chapter 26', 'value': 'db/ch26_db'}
+    {'label': 'Chapter 23 - War and Revolution', 'value': 'db/ch23_db'},
+    {'label': 'Chapter 24 - The West Between the Wars', 'value': 'db/ch24_db'},
+    {'label': 'Chapter 25 - Nationalism Around the World', 'value': 'db/ch25_db'},
+    {'label': 'Chapter 26 - World War II', 'value': 'db/ch26_db'}
 ]
 
 option = st.selectbox(label="Select chapter", options=chapters, format_func=lambda item: item['label'])
@@ -122,3 +126,7 @@ with st.form("Give your answer",clear_on_submit=True):
         evaluation = get_eval(input_ans, chain_eval, option['value'], st.session_state['question'], embeddings)
         st.write(evaluation)
         st.session_state['question_generated'] = False
+        save_convo.write(datetime.now().strftime("%d/%m, %H:%M:%S") + " - ")
+        save_convo.write("Question: " + st.session_state['question'])
+        save_convo.write("\nUser: " + input_ans + "\n")
+        save_convo.write("Examiner: " + evaluation + "\n\n")
