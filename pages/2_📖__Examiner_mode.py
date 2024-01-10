@@ -17,6 +17,7 @@ os.environ["OPENAI_API_KEY"] = "sk-wqHC3XeHAN1GTEni06a3T3BlbkFJTUwrZwKY9gKSEJv3X
 save_convo = open("conv_examiner.txt", "a")
 
 
+
 def get_question(model, db_path, embeddings):
 
     db = FAISS.load_local(db_path, embeddings)
@@ -24,8 +25,8 @@ def get_question(model, db_path, embeddings):
     input = ""
     n_docs = db.index.ntotal
     docs = db.similarity_search(input, k=n_docs)
-    random_ind = random.sample(range(n_docs), 5)
-    selected_docs = [docs[i] for i in random_ind]
+    random_ind = random.randint(2, n_docs-2)
+    selected_docs = [docs[i] for i in range(random_ind-2, random_ind+3)]
     information = "\n\n".join([re.sub(r'\s+', ' ', doc.page_content) for doc in selected_docs])
     prompt = template_question.format(information)
     question = model.predict(prompt).replace(f"$chatbot:", "").strip()
@@ -46,9 +47,6 @@ def get_eval(input, chain, db_path, question, embeddings):
 
     return response['output_text']
 
-# CHANGE!!
-db_path = 'db/ALL'  # sys.argv[1]
-
 
 template_question = """You are a teacher who will enhance my knowledge through quizzing.
     You will teach by posing questions on a subject of my choice. 
@@ -59,7 +57,7 @@ template_question = """You are a teacher who will enhance my knowledge through q
     The underlying document should be mentioned in neither the question nor the context.
 
     {0}
-
+    
     Chatbot:"""
 
 template_answer = """
