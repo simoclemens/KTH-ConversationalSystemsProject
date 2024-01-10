@@ -20,8 +20,8 @@ def get_question(model, db_path, embeddings):
     input = ""
     n_docs = db.index.ntotal
     docs = db.similarity_search(input, k=n_docs)
-    random_ind = random.sample(range(n_docs), 5)
-    selected_docs = [docs[i] for i in random_ind]
+    random_ind = random.randint(2, n_docs-2)
+    selected_docs = [docs[i] for i in range(random_ind-2, random_ind+3)]
     information = "\n\n".join([re.sub(r'\s+', ' ', doc.page_content) for doc in selected_docs])
     prompt = template_question.format(information)
     question = model.predict(prompt).replace(f"$chatbot:", "").strip()
@@ -42,28 +42,27 @@ def get_eval(input, chain, db_path, question, embeddings):
 
     return response['output_text']
 
-# CHANGE!!
-db_path = 'db/ALL'  # sys.argv[1]
 
-
-template_question = """You are a teacher who will enhance my knowledge through quizzes.
+template_question = """You are a teacher who will enhance my knowledge through quizzing.
     You will teach by posing questions on a subject of my choice. 
-    Please create an open-ended question for me based on the following document, do not refer to any images or tables present in the document. 
-    Do not mention that your question is based on the document.
+    Please create an open-ended question based on the following document, do not refer to any images or tables present in the document. 
+    
     Please also provide some context from the document before asking the question so that the user understands where the question is coming from.
+    The answer to the question should NOT be given in the context.
+    The underlying document should be mentioned in neither the question nor the context.
 
     {0}
-
+    
     Chatbot:"""
 
 template_answer = """
-    You are a teacher who will enhance the user's knowledge through quizzes.
-    You will facilitate their learning by offering hints, clues, and suggestions for clearer explanations when the user struggle to answer fully.
+    You are a teacher who will enhance the user's knowledge through quizzing.
+    You will facilitate their learning by offering hints, clues, and suggestions for clearer explanations when the user struggles to answer fully.
     
     The question you gave the user was: {question}
     User answer: {human_input}
 
-    Please evaluate the answer by comparing it to the information in the following document: {context}
+    Please evaluate the answer by comparing it to the information in the following book: {context}
     """
 
 prompt_question = PromptTemplate(
@@ -93,10 +92,10 @@ if 'question' not in st.session_state:
     st.session_state['question'] = ""
 
 chapters = [
-    {'label': 'The Twentieth-Century Crisis', 'value': 'db/ch23_db'},
-    {'label': 'The West Between the Wars', 'value': 'db/ch24_db'},
-    {'label': 'Nationalism Around the World', 'value': 'db/ch25_db'},
-    {'label': 'Chapter 26', 'value': 'db/ch26_db'}
+    {'label': 'Chapter 23 - War and Revolution', 'value': 'db/ch23_db'},
+    {'label': 'Chapter 24 - The West Between the Wars', 'value': 'db/ch24_db'},
+    {'label': 'Chapter 25 - Nationalism Around the World', 'value': 'db/ch25_db'},
+    {'label': 'Chapter 26 - World War II', 'value': 'db/ch26_db'}
 ]
 
 option = st.selectbox(label="Select chapter", options=chapters, format_func=lambda item: item['label'])
