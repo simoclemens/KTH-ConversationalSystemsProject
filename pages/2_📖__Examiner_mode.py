@@ -10,8 +10,13 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.memory import ConversationBufferMemory
 from langchain.vectorstores import FAISS
 from langchain_core.prompts import PromptTemplate
+from datetime import datetime
 
 os.environ["OPENAI_API_KEY"] = "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"
+
+save_convo = open("conv_examiner.txt", "a")
+
+
 
 def get_question(model, db_path, embeddings):
 
@@ -120,3 +125,7 @@ with st.form("Give your answer",clear_on_submit=True):
         evaluation = get_eval(input_ans, chain_eval, option['value'], st.session_state['question'], embeddings)
         st.write(evaluation)
         st.session_state['question_generated'] = False
+        save_convo.write(datetime.now().strftime("%d/%m, %H:%M:%S") + " - ")
+        save_convo.write("Question: " + st.session_state['question'])
+        save_convo.write("\nUser: " + input_ans + "\n")
+        save_convo.write("Examiner: " + evaluation + "\n\n")
