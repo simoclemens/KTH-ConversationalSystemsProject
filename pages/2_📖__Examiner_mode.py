@@ -48,26 +48,28 @@ def get_eval(input, chain, db_path, question, embeddings):
     return response['output_text']
 
 
-template_question = """You are a teacher who will enhance my knowledge through quizzing.
-    You will teach by posing questions on a subject of my choice. 
+template_question = """You are a teacher who will enhance my history knowledge through quizzing.
+    You will teach by posing questions.
+    Add some background information before asking the question. 
+    The underlying document should be mentioned in neither the question nor the context.
+
     Please create an open-ended question based on the following document, do not refer to any images or tables present in the document. 
     
-    Please also provide some context from the document before asking the question so that the user understands where the question is coming from.
-    The answer to the question should NOT be given in the context.
-    The underlying document should be mentioned in neither the question nor the context.
 
     {0}
     
     Chatbot:"""
 
 template_answer = """
-    You are a teacher who will enhance the user's knowledge through quizzing.
+    You are a teacher who will quiz a student on their history knowledge.
     You will facilitate their learning by offering hints, clues, and suggestions for clearer explanations when the user struggles to answer fully.
     
     The question you gave the user was: {question}
     User answer: {human_input}
 
-    Please evaluate the answer by comparing it to the information in the following book: {context}
+    Please evaluate the user answer by comparing it to the information in the following book: {context}
+
+    Evaluation:
     """
 
 prompt_question = PromptTemplate(
@@ -86,7 +88,8 @@ embeddings = OpenAIEmbeddings()
 question_model = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.5)
 
 # Define LLM model (default is a GPT3 davinci)
-llm = OpenAI(temperature=0.5, verbose=True)
+#llm = OpenAI(temperature=0.5, verbose=True)
+llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.5)
 
 chain_eval = load_qa_chain(llm, chain_type="stuff", memory=memory, prompt=prompt_answer)
 
