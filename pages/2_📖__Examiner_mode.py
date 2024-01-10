@@ -54,7 +54,8 @@ template_question = """You are a teacher who will enhance my knowledge through q
     You will teach by posing questions on a subject of my choice. 
     Please create an open-ended question based on the following document, do not refer to any images or tables present in the document. 
     
-    Please also provide some context from the document before asking the question so that the user understands where the question is coming from. Do NOT give the answer to the question in the context. 
+    Please also provide some context from the document before asking the question so that the user understands where the question is coming from.
+    The answer to the question should NOT be given in the context.
     The underlying document should be mentioned in neither the question nor the context.
 
     {0}
