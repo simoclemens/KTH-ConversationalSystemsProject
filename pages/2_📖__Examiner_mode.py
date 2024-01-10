@@ -13,7 +13,6 @@ from langchain_core.prompts import PromptTemplate
 
 os.environ["OPENAI_API_KEY"] = "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"
 
-
 def get_question(model, db_path, embeddings):
 
     db = FAISS.load_local(db_path, embeddings)
@@ -94,9 +93,9 @@ if 'question' not in st.session_state:
     st.session_state['question'] = ""
 
 chapters = [
-    {'label': 'Chapter 23', 'value': 'db/ch23_db'},
-    {'label': 'Chapter 24', 'value': 'db/ch24_db'},
-    {'label': 'Chapter 25', 'value': 'db/ch25_db'},
+    {'label': 'The Twentieth-Century Crisis', 'value': 'db/ch23_db'},
+    {'label': 'The West Between the Wars', 'value': 'db/ch24_db'},
+    {'label': 'Nationalism Around the World', 'value': 'db/ch25_db'},
     {'label': 'Chapter 26', 'value': 'db/ch26_db'}
 ]
 
