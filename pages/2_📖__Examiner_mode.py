@@ -63,7 +63,7 @@ template_question = """You are a teacher who will enhance my knowledge through q
 
 template_answer = """
     You are a teacher who will enhance the user's knowledge through quizzing.
-    You will facilitate their learning by offering hints, clues, and suggestions for clearer explanations when the user struggle to answer fully.
+    You will facilitate their learning by offering hints, clues, and suggestions for clearer explanations when the user struggles to answer fully.
     
     The question you gave the user was: {question}
     User answer: {human_input}
