@@ -10,8 +10,9 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.memory import ConversationBufferMemory
 from langchain.vectorstores import FAISS
 from langchain_core.prompts import PromptTemplate
+from config import OPENAI_API_KEY
 
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 
 def get_question(model, db_path, embeddings):
 
