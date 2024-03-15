@@ -2,7 +2,7 @@
 
 ### Final project for the KTH course in Conversational Systems
 
-The project is based on a streamlit interface nad exploits OpenAI API for interacting with a GPT3.5 model.  
+The project is based on a streamlit interface and exploits OpenAI API for interacting with a GPT3.5 model.  
 Preliminary steps in order to run the code:  
 - Setup the environment using the file `requirements.txt`
 - Insert your OpenAI key in the file `config.py`  
