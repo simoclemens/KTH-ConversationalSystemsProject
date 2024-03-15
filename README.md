@@ -1,11 +1,11 @@
 # KTH-ConversationalSystemsProject
 
+### Final project for the KTH course in Conversational Systems
 
+The project is based on a streamlit interface nad exploits OpenAI API for interacting with a GPT3.5 model.  
+Preliminary steps in order to run the code:  
+- Setup the environment using the file `requirements.txt`
+- Insert your OpenAI key in the file `config.py`  
 
-idea: 
-
-the user can have different intents like wanting to be asked a question, getting an evaluation of their answer, getting an explanation of a topic. We have different prompts for each of these to get the best possible response. We can also compare them in the paper.
-2 modes: teach and quiz (?)
-
-chapters 18-27
-http://glhssocialstudies.weebly.com/world-history-textbook---pdf-copy.html
+Once the environment and the key have been set run the code using the command `streamlit run Introduction.py`.  
+All the details related to the implementation are specified in the project report `report.pdf`.
