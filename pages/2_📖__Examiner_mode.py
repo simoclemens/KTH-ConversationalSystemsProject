@@ -10,9 +10,9 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.memory import ConversationBufferMemory
 from langchain.vectorstores import FAISS
 from langchain_core.prompts import PromptTemplate
-from datetime import datetime
+from config import OPENAI_API_KEY
 
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 
 save_convo = open("conv_examiner.txt", "a")
 
@@ -61,15 +61,15 @@ template_question = """You are a teacher who will enhance my history knowledge t
     Chatbot:"""
 
 template_answer = """
-    You are a teacher who will quiz a student on their history knowledge.
-    You will facilitate their learning by offering hints, clues, and suggestions for clearer explanations when the user struggles to answer fully.
+    You are a teacher who will enhance the user's knowledge through quizzing.
+    You will facilitate their learning by offering hints, clues, and suggestions for clearer explanations when the user
+    struggles to answer fully.
     
     The question you gave the user was: {question}
     User answer: {human_input}
 
     Please evaluate the user answer by comparing it to the information in the following book: {context}
 
-    Evaluation:
     """
 
 prompt_question = PromptTemplate(

@@ -7,8 +7,9 @@ from langchain.chat_models import ChatOpenAI
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores.faiss import FAISS
 from langchain_core.prompts import PromptTemplate
+from config import OPENAI_API_KEY
 
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 db_path = "db/ALL"
 
 # Question template
@@ -167,7 +168,7 @@ class CustomDataChatbot:
                                         return_only_outputs=True, callbacks=[st_cb])
 
                 f.write("Tutor: " + response['output_text'] + "\n")
-                print(response['output_text'])
+                # print(response['output_text'])
 
                 st.session_state["history"].append(f"$user: {user_query}")
                 st.session_state["history"].append(f"$chatbot: {response['output_text']}")
