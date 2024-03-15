@@ -1,6 +1,6 @@
 # KTH-ConversationalSystemsProject
 
-### Final project for the KTH course in Conversational Systems
+### Final project for the KTH course in Conversational Systems DT2151
 
 The project is based on a streamlit interface and exploits OpenAI API for interacting with a GPT3.5 model.  
 Preliminary steps in order to run the code:  
