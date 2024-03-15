@@ -14,6 +14,10 @@ from config import OPENAI_API_KEY
 
 os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 
+save_convo = open("conv_examiner.txt", "a")
+
+
+
 def get_question(model, db_path, embeddings):
 
     db = FAISS.load_local(db_path, embeddings)
@@ -44,13 +48,13 @@ def get_eval(input, chain, db_path, question, embeddings):
     return response['output_text']
 
 
-template_question = """You are a teacher who will enhance my knowledge through quizzing.
-    You will teach by posing questions on a subject of my choice. 
+template_question = """You are a teacher who will enhance my history knowledge through quizzing.
+    You will teach by posing questions.
+    Add some background information before asking the question. 
+    The underlying document should be mentioned in neither the question nor the context.
+
     Please create an open-ended question based on the following document, do not refer to any images or tables present in the document. 
     
-    Please also provide some context from the document before asking the question so that the user understands where the question is coming from.
-    The answer to the question should NOT be given in the context.
-    The underlying document should be mentioned in neither the question nor the context.
 
     {0}
     
@@ -65,6 +69,7 @@ template_answer = """
     User answer: {human_input}
 
     Please evaluate the user answer by comparing it to the information in the following book: {context}
+
     """
 
 prompt_question = PromptTemplate(
@@ -83,7 +88,8 @@ embeddings = OpenAIEmbeddings()
 question_model = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.5)
 
 # Define LLM model (default is a GPT3 davinci)
-llm = OpenAI(temperature=0.5, verbose=True)
+#llm = OpenAI(temperature=0.5, verbose=True)
+llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.5)
 
 chain_eval = load_qa_chain(llm, chain_type="stuff", memory=memory, prompt=prompt_answer)
 
@@ -122,3 +128,7 @@ with st.form("Give your answer",clear_on_submit=True):
         evaluation = get_eval(input_ans, chain_eval, option['value'], st.session_state['question'], embeddings)
         st.write(evaluation)
         st.session_state['question_generated'] = False
+        save_convo.write(datetime.now().strftime("%d/%m, %H:%M:%S") + " - ")
+        save_convo.write("Question: " + st.session_state['question'])
+        save_convo.write("\nUser: " + input_ans + "\n")
+        save_convo.write("Examiner: " + evaluation + "\n\n")

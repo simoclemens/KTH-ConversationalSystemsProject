@@ -84,7 +84,61 @@ chain_answer = st.session_state["chain_answer"]
 class CustomDataChatbot:
 
     def __init__(self):
+
         pass
+
+        self.openai_model = "gpt-3.5-turbo"
+        self.memory = None
+
+    def setup_qa_chain(self):
+        # Define the embedding function
+        embeddings = OpenAIEmbeddings()
+
+        db = FAISS.load_local(db_path, embeddings)
+
+        # Define retriever
+        retriever = db.as_retriever(
+            search_type='mmr',
+            search_kwargs={'k': 2, 'fetch_k': 4}
+        )
+
+        # Setup memory for contextual conversation
+        self.memory = ConversationBufferMemory(
+            memory_key='chat_history',
+            return_messages=True
+        )
+
+        general_system_template = r"""
+            You are a tutor having a conversation with a human.
+            Given the following extracted parts of a long document, the chat history and an input from the user, have a conversation on the topic.
+            When asked a question, create a concise answer and a question to continue the conversation.
+            The answer offer explanations, and provide summaries from the context.
+            Make sure that the pupil understands the given answer, by asking a follow up question.
+            You cannot have political influence and you should be neutral when asked about subjective opinions.
+            When you cannot find information in the context answer that you don't know, answer "I'm sorry, that is beyond my knowledge.". You are forbidden to answer questions on topics not included in the context.
+        ----
+        {context}
+        ----
+        """
+        general_user_template = "Question:```{question}```"
+        messages = \
+            [
+                SystemMessagePromptTemplate.from_template(general_system_template),
+                HumanMessagePromptTemplate.from_template(general_user_template)
+            ]
+
+        prompt = ChatPromptTemplate.from_messages(messages)
+
+        # Setup LLM and QA chain
+        llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0.2, streaming=True)
+
+        qa_chain = ConversationalRetrievalChain.from_llm(llm,
+                                                         retriever=retriever,
+                                                         memory=self.memory,
+                                                         verbose=True,
+                                                         combine_docs_chain_kwargs={"prompt": prompt})
+        return qa_chain
+
 
     @utils.enable_chat_history
     def tutor_mode(self):
